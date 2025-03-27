@@ -86,9 +86,10 @@ app.delete("/api/user/history/:id", authenticate, (req, res) => {
 
 userService.connect()
 .then(() => {
-    app.listen(HTTP_PORT, () => { console.log("API listening on: " + HTTP_PORT) });
+    console.log("MongoDB connected");
 })
 .catch((err) => {
-    console.log("unable to start the server: " + err);
+    console.log("Unable to start the server:", err);
     process.exit();
 });
+module.exports = app; // Export the app for Vercel
