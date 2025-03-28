@@ -11,16 +11,21 @@ const passport = require("./passport-config");
 const express = require('express');
 const app = express();
 const cors = require("cors");
-const dotenv = require("dotenv");
-dotenv.config();
 const jwt = require("jsonwebtoken");
 const authenticate = passport.authenticate("jwt", { session: false });
 const userService = require("./user-service.js");
 
+const corsOptions = { // CORS public API config
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+};
+
 const HTTP_PORT = process.env.PORT || 8080;
 
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(passport.initialize());
 
 app.get('/', (req, res) => {
