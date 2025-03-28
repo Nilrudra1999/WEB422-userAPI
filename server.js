@@ -46,7 +46,6 @@ app.get('/', (req, res) => {
 });
 
 app.post("/api/user/register", (req, res) => {
-    console.log("POST request received at /api/user/register");
     userService.registerUser(req.body)
     .then((msg) => {
         res.json({ "message": msg });
