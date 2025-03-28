@@ -63,14 +63,20 @@ module.exports.checkUser = function (userData) {
         User.findOne({ userName: userData.userName })
             .exec()
             .then(user => {
+                if (!user) {
+                    return reject("Unable to find user " + userData.userName);
+                }
                 bcrypt.compare(userData.password, user.password).then(res => {
                     if (res === true) {
                         resolve(user);
                     } else {
                         reject("Incorrect password for user " + userData.userName);
                     }
+                }).catch(err => {
+                    reject("Error comparing passwords for user " + userData.userName);
                 });
-            }).catch(err => {
+            })
+            .catch(err => {
                 reject("Unable to find user " + userData.userName);
             });
     });

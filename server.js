@@ -61,8 +61,9 @@ app.post("/api/user/login", (req, res) => {
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
         res.json({ "message": "Login successful", "token": token });
     })
-    .catch(msg => {
-        res.status(422).json({ "message": msg });
+    .catch(err => {
+        let errorMessage = err || "An unknown error occurred during login.";
+        res.status(422).json({ "message": errorMessage });
     });
 });
 
