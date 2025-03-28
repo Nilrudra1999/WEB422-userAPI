@@ -23,12 +23,18 @@ let userSchema = new Schema({
 });
 let User;
 
-mongoose.connect(mongoDBConnectionString, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('MongoDB connected'))
-    .catch(err => {
-        console.error('Unable to connect to MongoDB:', err);
-        process.exit(1);
-});
+module.exports.connect = function () {
+    return new Promise(function (resolve, reject) {
+        let db = mongoose.createConnection(mongoDBConnectionString);
+        db.on('error', err => {
+            reject(err);
+        });
+        db.once('open', () => {
+            User = db.model("users", userSchema);
+            resolve();
+        });
+    });
+};
 
 module.exports.registerUser = function (userData) {
     return new Promise(function (resolve, reject) {
