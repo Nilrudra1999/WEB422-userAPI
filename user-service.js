@@ -36,7 +36,7 @@ module.exports.connect = function () {
     });
 };
 
-module.exports.registerUser = function (userData) {
+module.exports.registerUser = function (userData) { // api/user/register
     return new Promise(function (resolve, reject) {
         if (userData.password != userData.password2) {
             reject("Passwords do not match");
