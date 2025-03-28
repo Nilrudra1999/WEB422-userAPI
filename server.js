@@ -16,7 +16,7 @@ const authenticate = passport.authenticate("jwt", { session: false });
 const userService = require("./user-service.js");
 
 const corsOptions = { // CORS public API config
-    origin: '*',
+    origin: 'https://web-422-app-two.vercel.app',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
