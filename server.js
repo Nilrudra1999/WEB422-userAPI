@@ -20,12 +20,19 @@ const corsOptions = { // CORS public API config
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 };
 
-const HTTP_PORT = process.env.PORT || 8080;
+app.use(cors(corsOptions));
+app.options('*', (req, res) => {
+    res.header('Access-Control-Allow-Origin', 'https://web-422-app-two.vercel.app');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.sendStatus(204);
+});
 
 app.use(express.json());
-app.use(cors(corsOptions));
 app.use(passport.initialize());
 
 app.get('/', (req, res) => {
