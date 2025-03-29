@@ -25,19 +25,6 @@ const corsOptions = { // CORS public API config
 };
 
 app.use(cors(corsOptions));
-app.options('*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', 'https://web-422-app-two.vercel.app');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.sendStatus(204);
-});
-
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://web-422-app-two.vercel.app');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    next();
-});
 app.use(express.json());
 app.use(passport.initialize());
 
@@ -54,50 +41,47 @@ app.post("/api/user/register", (req, res) => { // register user
     });
 });
 
-app.post("api/user/login", (req, res) => {
-    userService.checkUser(req.body)
-    .then(user => {
-        const payload = { _id: user._id, userName: user.userName };
-        const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" });
-        res.json({ "message": "Login successful", "token": token });
-    })
-    .catch(err => {
-        let errorMessage = err || "An unknown error occurred during login.";
-        res.status(422).json({ "message": errorMessage });
-    });
+app.post("/api/user/login", (req, res) => {
+    userService.checkUser(req.body.userName, req.body.password)
+        .then((user) => {
+            const payload = { _id: user._id, userName: user.userName };
+            const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+            res.json({ message: { token } });
+        })
+        .catch((err) => res.status(422).json({ message: err }));
 });
 
-app.get("api/user/favourites", authenticate, (req, res) => {
+app.get("/api/user/favourites", passport.authenticate('jwt', { session: false }), (req, res) => {
     userService.getFavourites(req.user._id)
     .then(data => res.json(data))
     .catch(msg => res.status(422).json({ error: msg }));
 });
 
-app.put("api/user/favourites/:id", authenticate, (req, res) => {
+app.put("/api/user/favourites/:id", passport.authenticate('jwt', { session: false }), (req, res) => {
     userService.addFavourite(req.user._id, req.params.id)
     .then(data => res.json(data))
     .catch(msg => res.status(422).json({ error: msg }));
 });
 
-app.delete("api/user/favourites/:id", authenticate, (req, res) => {
+app.delete("/api/user/favourites/:id", passport.authenticate('jwt', { session: false }), (req, res) => {
     userService.removeFavourite(req.user._id, req.params.id)
     .then(data => res.json(data))
     .catch(msg => res.status(422).json({ error: msg }));
 });
 
-app.get("api/user/history", authenticate, (req, res) => {
+app.get("/api/user/history", authenticate, (req, res) => {
     userService.getHistory(req.user._id)
     .then(data => res.json(data))
     .catch(msg => res.status(422).json({ error: msg }));
 });
 
-app.put("api/user/history/:id", authenticate, (req, res) => {
+app.put("/api/user/history/:id", authenticate, (req, res) => {
     userService.addHistory(req.user._id, req.params.id)
     .then(data => res.json(data))
     .catch(msg => res.status(422).json({ error: msg }));
 });
 
-app.delete("api/user/history/:id", authenticate, (req, res) => {
+app.delete("/api/user/history/:id", authenticate, (req, res) => {
     userService.removeHistory(req.user._id, req.params.id)
     .then(data => res.json(data))
     .catch(msg => res.status(422).json({ error: msg }));

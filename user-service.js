@@ -24,15 +24,13 @@ let userSchema = new Schema({
 let User;
 
 module.exports.connect = function () {
-    return new Promise(function (resolve, reject) {
-        let db = mongoose.createConnection(mongoDBConnectionString);
-        db.on('error', err => {
-            reject(err);
-        });
-        db.once('open', () => {
-            User = db.model("users", userSchema);
+    return new Promise((resolve, reject) => {
+        mongoose.connect(mongoDBConnectionString, { useNewUrlParser: true, useUnifiedTopology: true })
+        .then(() => {
+            User = mongoose.model("users", userSchema);
             resolve();
-        });
+        })
+        .catch(err => reject(err));
     });
 };
 
@@ -64,21 +62,19 @@ module.exports.checkUser = function (userData) {
             .exec()
             .then(user => {
                 if (!user) {
-                    return reject("Unable to find user " + userData.userName);
+                    return reject("User not found: " + userData.userName);
                 }
-                bcrypt.compare(userData.password, user.password).then(res => {
-                    if (res === true) {
-                        resolve(user);
-                    } else {
-                        reject("Incorrect password for user " + userData.userName);
-                    }
-                }).catch(err => {
-                    reject("Error comparing passwords for user " + userData.userName);
-                });
+                bcrypt.compare(userData.password, user.password)
+                    .then(match => {
+                        if (match) {
+                            resolve(user);
+                        } else {
+                            reject("Incorrect password for user " + userData.userName);
+                        }
+                    })
+                    .catch(() => reject("Error comparing passwords"));
             })
-            .catch(err => {
-                reject("Unable to find user " + userData.userName);
-            });
+            .catch(err => reject("Internal server error. Please try again later."));
     });
 };
 
@@ -141,7 +137,7 @@ module.exports.getHistory = function (id) {
 module.exports.addHistory = function (id, historyId) {
     return new Promise(function (resolve, reject) {
         User.findById(id).exec().then(user => {
-            if (user.favourites.length < 50) {
+            if (user.history.length < 50) {
                 User.findByIdAndUpdate(id,
                     { $addToSet: { history: historyId } },
                     { new: true }
