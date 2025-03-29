@@ -45,7 +45,7 @@ app.get('/', (req, res) => {
     res.send('Welcome to the User API');
 });
 
-app.post("api/user/register", (req, res) => { // register user
+app.post("/api/user/register", (req, res) => { // register user
     userService.registerUser(req.body)
     .then((msg) => {
         res.json({ "message": msg });
