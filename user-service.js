@@ -27,7 +27,7 @@ module.exports.connect = function () {
     return new Promise((resolve, reject) => {
         mongoose.connect(mongoDBConnectionString, { useNewUrlParser: true, useUnifiedTopology: true })
         .then(() => {
-            User = mongoose.model("users", userSchema);
+            if (!User) { User = mongoose.model("users", userSchema); }
             resolve();
         })
         .catch(err => reject(err));
@@ -36,6 +36,13 @@ module.exports.connect = function () {
 
 module.exports.registerUser = function (userData) { // api/user/register
     return new Promise(function (resolve, reject) {
+        if (!User) {
+            module.exports.connect()
+                .then(() => module.exports.registerUser(userData)) // Retry after connecting
+                .then(resolve)
+                .catch(reject);
+            return;
+        }
         if (userData.password != userData.password2) {
             reject("Passwords do not match");
         } else {
