@@ -48,10 +48,10 @@ module.exports.registerUser = function (userData) { // api/user/register
                     if (err.code == 11000) {
                         reject("User Name already taken");
                     } else {
-                        reject("There was an error creating the user: " + err);
+                        reject(`There was an error creating the user: ${err.message}`);
                     }
                 })
-            }).catch(err => reject(err));
+            }).catch(err => reject(`Error hashing password: ${err.message}`));
         }
     });
 };
