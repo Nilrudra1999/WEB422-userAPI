@@ -41,7 +41,7 @@ app.post("/api/user/register", (req, res) => { // register user
     });
 });
 
-app.post("/api/user/login", (req, res) => { // login
+app.post("/api/user/login", (req, res) => {
     const { userName, password } = req.body;
     if (!userName || !password) { return res.status(400).json({ message: "Username and password are required" }); }
     userService.checkUser(userName, password)
@@ -51,7 +51,7 @@ app.post("/api/user/login", (req, res) => { // login
             res.json({ token });
         })
         .catch(err => {
-            res.status(401).json({ message: err });
+            res.status(401).json({ message: err.message || err });
         });
 });
 

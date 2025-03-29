@@ -63,11 +63,11 @@ module.exports.registerUser = function (userData) { // api/user/register
     });
 };
 
-module.exports.checkUser = function (userName, password) { // api/user/login
+module.exports.checkUser = function (userName, password) { 
     return new Promise((resolve, reject) => {
         if (!User) {
             module.exports.connect()
-                .then(() => module.exports.checkUser(userName, password)) // Retry after connecting
+                .then(() => module.exports.checkUser(userName, password)) 
                 .then(resolve)
                 .catch(reject);
             return;
@@ -81,15 +81,12 @@ module.exports.checkUser = function (userName, password) { // api/user/login
                 }
                 bcrypt.compare(password, user.password)
                     .then(match => {
-                        if (match) {
-                            resolve(user);
-                        } else {
-                            reject("Incorrect password for user " + userName);
-                        }
+                        if (match) { resolve(user); } 
+                        else { reject("Incorrect password for user " + userName); }
                     })
-                    .catch(err => reject(`Error comparing passwords: ${err.message}`));
+                    .catch(err => { reject(`Error comparing passwords: ${err.message}`); });
             })
-            .catch(err => reject(`Database query error: ${err.message}`));
+            .catch(err => { reject(`Database query error: ${err.message}`); });
     });
 };
 
