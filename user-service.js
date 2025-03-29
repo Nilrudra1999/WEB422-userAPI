@@ -66,24 +66,30 @@ module.exports.registerUser = function (userData) { // api/user/register
 module.exports.checkUser = function (userName, password) { // api/user/login
     return new Promise((resolve, reject) => {
         if (!User) {
-            return reject("Database not initialized. Try again later.");
+            module.exports.connect()
+                .then(() => module.exports.checkUser(userName, password)) // Retry after connecting
+                .then(resolve)
+                .catch(reject);
+            return;
         }
         User.findOne({ userName })
             .exec()
             .then(user => {
                 if (!user) {
-                    return reject("User not found: " + userName);
+                    reject("User not found: " + userName);
+                    return;
                 }
-                return bcrypt.compare(password, user.password)
+                bcrypt.compare(password, user.password)
                     .then(match => {
                         if (match) {
                             resolve(user);
                         } else {
                             reject("Incorrect password for user " + userName);
                         }
-                    });
+                    })
+                    .catch(err => reject(`Error comparing passwords: ${err.message}`));
             })
-            .catch(err => reject("Internal server error. Please try again later."));
+            .catch(err => reject(`Database query error: ${err.message}`));
     });
 };
 
